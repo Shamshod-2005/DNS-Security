@@ -7,9 +7,9 @@ import ruTranslation from "./locales/ru/translation.json";
 import enTranslation from "./locales/en/translation.json";
 
 export const SUPPORTED_LANGUAGES = [
+  { code: "en", name: "English", short: "EN" },
   { code: "uz", name: "O'zbekcha", short: "UZ" },
   { code: "ru", name: "Русский", short: "RU" },
-  { code: "en", name: "English", short: "EN" },
 ] as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]["code"];
@@ -19,19 +19,19 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
+      en: { translation: enTranslation },
       uz: { translation: uzTranslation },
       ru: { translation: ruTranslation },
-      en: { translation: enTranslation },
     },
-    fallbackLng: "uz",
-    supportedLngs: ["uz", "ru", "en"],
+    fallbackLng: "en",
+    supportedLngs: ["en", "uz", "ru"],
     load: "languageOnly",
     nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false, // React already escapes values
     },
     detection: {
-      order: ["localStorage", "navigator"],
+      order: ["localStorage"],
       caches: ["localStorage"],
       lookupLocalStorage: "i18nextLng",
     },

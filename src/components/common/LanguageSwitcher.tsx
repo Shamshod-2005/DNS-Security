@@ -9,7 +9,7 @@ export const LanguageSwitcher: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Normalize language code to 2 letters (e.g. 'uz-UZ' -> 'uz')
-  const currentLangCode = (i18n.language || "uz").split("-")[0] as SupportedLanguage;
+  const currentLangCode = (i18n.language || "en").split("-")[0] as SupportedLanguage;
   const currentLang =
     SUPPORTED_LANGUAGES.find((l) => l.code === currentLangCode) ||
     SUPPORTED_LANGUAGES[0];
