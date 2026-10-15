@@ -17,6 +17,20 @@ import "./i18n";
 
 import App from "./App.tsx";
 
+// Dastlabki mavzuni (Dark / Light) xavfsiz o'rnatish (CSP inline script talab qilmaslik uchun)
+try {
+  const saved = localStorage.getItem("mdns.theme");
+  const theme = saved === "light" || saved === "dark" ? saved : "dark";
+  if (theme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+} catch {
+  // ignore
+}
+
 // Agar brauzerda eski hash yo'llar (#/dashboard yoki #/login) qolgan bo'lsa, ularni toza yo'lga o'tkazamiz
 if (typeof window !== "undefined" && window.location.hash.startsWith("#/")) {
   const cleanPath = window.location.hash.slice(1);
