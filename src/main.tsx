@@ -3,10 +3,13 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Inter shrift — bundle ichida (CDN yo'q, CSP ga mos)
+// Inter va JetBrains Mono shriftlari — bundle ichida (CDN yo'q, 100% offlayn va CSP ga mos)
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/500.css";
+import "@fontsource/jetbrains-mono/600.css";
 
 // Dizayn tokenlari va global stillar
 import "./styles/tokens.css";
