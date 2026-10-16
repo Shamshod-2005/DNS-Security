@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://brooks-times-might-exclusive.trycloudflare.com/api/:path*"
+      "destination": "https://hub-helped-associated-leo.trycloudflare.com/api/:path*"
     },
     {
       "source": "/login",
-      "destination": "https://brooks-times-might-exclusive.trycloudflare.com/login"
+      "destination": "https://hub-helped-associated-leo.trycloudflare.com/login"
     },
     {
       "source": "/logout",
-      "destination": "https://brooks-times-might-exclusive.trycloudflare.com/logout"
+      "destination": "https://hub-helped-associated-leo.trycloudflare.com/logout"
     },
     {
       "source": "/(.*)",
