@@ -539,7 +539,24 @@ export default function Dashboard() {
           if (match) {
             setInspectingLog(match);
           } else {
-            navigate(ROUTES.BLOCKED);
+            setInspectingLog({
+              id: `inspect-blk-${domain.domain}`,
+              timestamp: domain.lastSeen || "Live",
+              fullTimestamp: `${domain.firstSeen || new Date().toISOString().substring(0, 10)} UTC`,
+              clientIp: "Protected Network",
+              device: "Active DNS Filter",
+              deviceType: "workstation",
+              domain: domain.domain,
+              queryType: "A",
+              category: domain.category || "Malicious Threat",
+              action: "BLOCK",
+              response: "0.0.0.0 (Sinkhole)",
+              threatLevel: "Critical",
+              dnsServer: "Primary Sinkhole Engine",
+              responseCode: "REFUSED",
+              responseTimeMs: 0,
+              policyApplied: domain.blockReason || "Malicious Blocklist Filter",
+            });
           }
         }}
         onSelectClient={() => navigate(ROUTES.QUERY_LOG)}
