@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar, type NavTab } from "./Sidebar";
@@ -21,6 +21,15 @@ export default function Layout() {
   const [liveStreaming, setLiveStreaming] = useState(true);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const mainViewportRef = useRef<HTMLElement>(null);
+
+  // Har safar sahifa (route) o'zgarganda scrollni avtomatik eng yuqori qismiga (top) qaytarish
+  useEffect(() => {
+    if (mainViewportRef.current) {
+      mainViewportRef.current.scrollTop = 0;
+    }
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Map route to the exact 7 pages
   const path = location.pathname;
@@ -173,6 +182,7 @@ export default function Layout() {
         {/* Dynamic View Scroll Area */}
         <main
           className="flex-1 overflow-y-auto overflow-x-hidden px-6 widescreen:px-10 pt-4 widescreen:pt-6 pb-6 widescreen:pb-10 bg-[#f8fafc] dark:bg-[#0b0f19] transition-colors duration-150 min-w-0 max-w-full flex flex-col"
+          ref={mainViewportRef}
           id="dashboard-viewport"
         >
           <div className="w-full min-w-0 max-w-full flex-1 flex flex-col">
