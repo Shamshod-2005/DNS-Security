@@ -68,6 +68,7 @@ export const Login: React.FC = () => {
   // UI state
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [passwordErrorShake, setPasswordErrorShake] = useState(false);
 
   // 1. React Hook Form for Login
   const loginForm = useForm<LoginFormData>({
@@ -109,6 +110,11 @@ export const Login: React.FC = () => {
 
       if (!res.ok) {
         setServerError(res.error || "Foydalanuvchi nomi yoki parol noto'g'ri.");
+        // Xavfsiz va qulay UX: Username saqlanadi, parol maydoni tozalanib fokus beriladi
+        loginForm.setValue("password", "");
+        loginForm.setFocus("password");
+        setPasswordErrorShake(true);
+        setTimeout(() => setPasswordErrorShake(false), 500);
         setLoading(false);
         return;
       }
@@ -140,6 +146,10 @@ export const Login: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     } catch {
       setServerError("Server bilan aloqa xatoligi. Qayta urinib ko'ring.");
+      loginForm.setValue("password", "");
+      loginForm.setFocus("password");
+      setPasswordErrorShake(true);
+      setTimeout(() => setPasswordErrorShake(false), 500);
     } finally {
       setLoading(false);
     }
@@ -265,7 +275,7 @@ export const Login: React.FC = () => {
                       placeholder="admin"
                       className={`w-full h-11 pl-10 pr-4 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
                         loginForm.formState.errors.username
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
@@ -288,13 +298,16 @@ export const Login: React.FC = () => {
                       type={showPassword ? "text" : "password"}
                       id="login-password-input"
                       {...loginForm.register("password")}
-                      onKeyDown={handleKeyModifierCheck}
+                      onKeyDown={(e) => {
+                        handleKeyModifierCheck(e);
+                        if (passwordErrorShake) setPasswordErrorShake(false);
+                      }}
                       onKeyUp={handleKeyModifierCheck}
                       autoComplete="current-password"
                       placeholder="••••••••"
                       className={`w-full h-11 pl-10 pr-11 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
-                        loginForm.formState.errors.password
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                        loginForm.formState.errors.password || passwordErrorShake
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
@@ -390,12 +403,15 @@ export const Login: React.FC = () => {
                     <input
                       type="password"
                       {...changeForm.register("current_password")}
-                      onKeyDown={handleKeyModifierCheck}
+                      onKeyDown={(e) => {
+                        handleKeyModifierCheck(e);
+                        if (passwordErrorShake) setPasswordErrorShake(false);
+                      }}
                       onKeyUp={handleKeyModifierCheck}
                       placeholder="Joriy parol"
                       className={`w-full h-11 pl-10 pr-4 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
                         changeForm.formState.errors.current_password
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
@@ -419,7 +435,7 @@ export const Login: React.FC = () => {
                       {...changeForm.register("username")}
                       className={`w-full h-11 pl-10 pr-4 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
                         changeForm.formState.errors.username
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
@@ -441,12 +457,15 @@ export const Login: React.FC = () => {
                     <input
                       type={showNewPassword ? "text" : "password"}
                       {...changeForm.register("new_password")}
-                      onKeyDown={handleKeyModifierCheck}
+                      onKeyDown={(e) => {
+                        handleKeyModifierCheck(e);
+                        if (passwordErrorShake) setPasswordErrorShake(false);
+                      }}
                       onKeyUp={handleKeyModifierCheck}
                       placeholder="Kamida 8 ta belgi"
                       className={`w-full h-11 pl-10 pr-11 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
                         changeForm.formState.errors.new_password
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
@@ -501,12 +520,15 @@ export const Login: React.FC = () => {
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       {...changeForm.register("confirm_password")}
-                      onKeyDown={handleKeyModifierCheck}
+                      onKeyDown={(e) => {
+                        handleKeyModifierCheck(e);
+                        if (passwordErrorShake) setPasswordErrorShake(false);
+                      }}
                       onKeyUp={handleKeyModifierCheck}
                       placeholder="Parolni qayta kiriting"
                       className={`w-full h-11 pl-10 pr-11 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
                         changeForm.formState.errors.confirm_password
-                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25"
+                          ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
                     />
