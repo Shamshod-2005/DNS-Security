@@ -1,5 +1,6 @@
 import { axiosInstance, resetRedirectFlag } from "../config/axios";
 import { queryClient } from "../config/queryClient";
+import i18n from "../i18n";
 import type {
   AuthMeResponse,
   AuthChangeRequest,
@@ -130,6 +131,16 @@ export async function logoutUser(): Promise<void> {
   // Chiqilganligini belgilab qo'yish (login sahifasida ortiqcha 401 so'rovi ketmasligi uchun)
   try {
     sessionStorage.setItem("logged_out", "true");
+  } catch {
+    // ignore
+  }
+
+  // Logout qilinganda tilni har doim tizim standarti (English - en) holatiga qaytarish
+  try {
+    localStorage.setItem("i18nextLng", "en");
+    if (i18n.language !== "en") {
+      i18n.changeLanguage("en");
+    }
   } catch {
     // ignore
   }

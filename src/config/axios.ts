@@ -107,6 +107,7 @@ axiosInstance.interceptors.response.use(
         redirecting = true;
         try {
           localStorage.setItem("mdns.theme", "dark");
+          localStorage.setItem("i18nextLng", "en");
           document.documentElement.classList.add("dark");
           document.documentElement.setAttribute("data-theme", "dark");
         } catch {

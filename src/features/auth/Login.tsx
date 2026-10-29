@@ -34,7 +34,7 @@ import {
 } from "../../schemas/auth.schema";
 
 export const Login: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -45,6 +45,10 @@ export const Login: React.FC = () => {
       localStorage.setItem("mdns.theme", "dark");
       document.documentElement.classList.add("dark");
       document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("i18nextLng", "en");
+      if (i18n.language !== "en") {
+        i18n.changeLanguage("en");
+      }
     } catch {
       // ignore
     }
@@ -120,6 +124,10 @@ export const Login: React.FC = () => {
       // Success -> React Query keshini yangilaymiz va dashboardga yo'naltiramiz
       try {
         sessionStorage.removeItem("logged_out");
+        localStorage.setItem("i18nextLng", "en");
+        if (i18n.language !== "en") {
+          i18n.changeLanguage("en");
+        }
       } catch {
         // ignore
       }
@@ -153,6 +161,10 @@ export const Login: React.FC = () => {
       // Success -> React Query keshini yangilaymiz va dashboardga yo'naltiramiz
       try {
         sessionStorage.removeItem("logged_out");
+        localStorage.setItem("i18nextLng", "en");
+        if (i18n.language !== "en") {
+          i18n.changeLanguage("en");
+        }
       } catch {
         // ignore
       }
