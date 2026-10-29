@@ -10,6 +10,7 @@ import type {
 export interface LoginResult {
   ok: boolean; 
   error?: string;
+  field?: "username" | "password";
   must_change?: boolean;
   username?: string;
 }
@@ -33,13 +34,21 @@ export async function loginUser(credentials: {
     params.append("password", credentials.password);
 
     try {
-      await axiosInstance.post("/login", params, {
+      const postRes = await axiosInstance.post("/login", params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "text/html, application/xhtml+xml, */*",
+          Accept: "application/json, text/html, */*",
         },
         skipAuthRedirect: true,
       });
+
+      if (postRes.data && postRes.data.ok === true) {
+        return {
+          ok: true,
+          username: postRes.data.username || credentials.username.trim(),
+          must_change: postRes.data.must_change,
+        };
+      }
     } catch (postErr: any) {
       const postStatus = postErr?.status || postErr?.response?.status;
       // Agar server xatoligi (502, 500, 503, 504) yoki 401/429 bo'lsa darhol xato tashlash
@@ -74,8 +83,36 @@ export async function loginUser(credentials: {
     };
   } catch (error: any) {
     const status = error?.status || error?.response?.status;
+    const respData = error?.response?.data || error?.data;
     if (status === 401) {
-      return { ok: false, error: "Foydalanuvchi nomi yoki parol noto'g'ri." };
+      let field: "username" | "password" | undefined = undefined;
+      let errorMsg = "Foydalanuvchi nomi yoki parol noto'g'ri.";
+
+      if (respData && typeof respData === "object") {
+        if (respData.field === "username" || respData.field === "password") {
+          field = respData.field;
+        }
+        if (respData.error) {
+          errorMsg = respData.error;
+        }
+      }
+
+      if (!field) {
+        const raw = (typeof respData === "string" ? respData : error?.message || errorMsg).toLowerCase();
+        if (raw.includes("username") || raw.includes("foydalanuvchi")) {
+          field = "username";
+          errorMsg = "Foydalanuvchi nomi noto'g'ri.";
+        } else if (raw.includes("password") || raw.includes("parol")) {
+          field = "password";
+          errorMsg = "Parol noto'g'ri.";
+        }
+      }
+
+      return {
+        ok: false,
+        error: errorMsg,
+        field,
+      };
     }
     if (status === 429) {
       return {

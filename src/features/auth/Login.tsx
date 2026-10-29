@@ -69,6 +69,7 @@ export const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [passwordErrorShake, setPasswordErrorShake] = useState(false);
+  const [usernameErrorShake, setUsernameErrorShake] = useState(false);
 
   // 1. React Hook Form for Login
   const loginForm = useForm<LoginFormData>({
@@ -110,11 +111,19 @@ export const Login: React.FC = () => {
 
       if (!res.ok) {
         setServerError(res.error || "Foydalanuvchi nomi yoki parol noto'g'ri.");
-        // Xavfsiz va qulay UX: Username saqlanadi, parol maydoni tozalanib fokus beriladi
-        loginForm.setValue("password", "");
-        loginForm.setFocus("password");
-        setPasswordErrorShake(true);
-        setTimeout(() => setPasswordErrorShake(false), 500);
+        if (res.field === "username") {
+          // Foydalanuvchi nomi xato bo'lsa: faqat username maydoni tozalanadi va kursor usernameda bo'ladi
+          loginForm.setValue("username", "");
+          loginForm.setFocus("username");
+          setUsernameErrorShake(true);
+          setTimeout(() => setUsernameErrorShake(false), 500);
+        } else {
+          // Parol xato bo'lsa: username saqlanadi, parol maydoni tozalanadi va kursor parolda bo'ladi
+          loginForm.setValue("password", "");
+          loginForm.setFocus("password");
+          setPasswordErrorShake(true);
+          setTimeout(() => setPasswordErrorShake(false), 500);
+        }
         setLoading(false);
         return;
       }
@@ -273,8 +282,11 @@ export const Login: React.FC = () => {
                       autoFocus
                       autoComplete="username"
                       placeholder="admin"
+                      onKeyDown={() => {
+                        if (usernameErrorShake) setUsernameErrorShake(false);
+                      }}
                       className={`w-full h-11 pl-10 pr-4 rounded-xl bg-[#090e1a] border text-white text-sm placeholder:text-slate-600 focus:outline-none transition-all font-mono ${
-                        loginForm.formState.errors.username
+                        loginForm.formState.errors.username || usernameErrorShake
                           ? "border-rose-500/80 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/25 ring-2 ring-rose-500/30 animate-shake"
                           : "border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25"
                       }`}
