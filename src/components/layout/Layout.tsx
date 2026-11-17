@@ -7,6 +7,7 @@ import { ROUTES } from "../../router/routes";
 import { fetchLogs } from "../../api/logs";
 import { fetchSummary } from "../../api/stats";
 import { BlockDomainModal } from "../common/QuickActionModals";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 import type {
   NotificationItem,
   DnsLogEntry,
@@ -41,19 +42,29 @@ export default function Layout() {
   else if (path.includes("pcap")) activeTab = "pcap";
   else if (path.includes("account")) activeTab = "account";
 
+  // Aqlli polling: vkladka yopilsa yoki foydalanuvchi harakatsiz bo'lsa polling to'xtatiladi
+  const { shouldPoll } = useSmartPolling({
+    enabled: liveStreaming,
+    idleTimeoutMs: 5 * 60 * 1000,
+  });
+
+  // Agar foydalanuvchi Dashboard sahifasida bo'lsa, Header uchun takroriy (dublikat) so'rov yubormaslik
+  const isDashboard = location.pathname.includes("dashboard") || location.pathname === "/";
+  const shouldPollHeader = shouldPoll && !isDashboard;
+
   // Real backend queries for global header search
   const { data: liveLogsRes } = useQuery({
     queryKey: ["logs", "live", "header"],
     queryFn: () =>
       fetchLogs({ malicious: 0, dot: 0, range: "live", page_size: 20 }),
-    refetchInterval: liveStreaming ? 3000 : false,
+    refetchInterval: shouldPollHeader ? 15000 : false,
     refetchIntervalInBackground: false,
   });
 
   const { data: summaryRes } = useQuery({
     queryKey: ["summary", "header"],
     queryFn: () => fetchSummary("pps"),
-    refetchInterval: liveStreaming ? 15000 : false,
+    refetchInterval: shouldPollHeader ? 30000 : false,
     refetchIntervalInBackground: false,
   });
 

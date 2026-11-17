@@ -16,6 +16,7 @@ import {
   PcapCaptureCard,
   PcapFilesCard,
 } from "./components";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 
 export default function Pcap() {
   const { t } = useTranslation();
@@ -31,6 +32,9 @@ export default function Pcap() {
     setTimeout(() => setFeedback(null), 5000);
   };
 
+  // Aqlli polling: vkladka yopilsa yoki foydalanuvchi harakatsiz bo'lsa polling to'xtatiladi
+  const { shouldPoll } = useSmartPolling({ idleTimeoutMs: 5 * 60 * 1000 });
+
   // ── 1. Real-time Status Query with smart polling ──
   const {
     data: pcapStatus,
@@ -42,10 +46,12 @@ export default function Pcap() {
     queryFn: fetchPcapStatus,
     // When active sessions are recording, poll every 1.5s for live counters; otherwise every 8s
     refetchInterval: (query) => {
+      if (!shouldPoll) return false;
       const isAnyActive = query.state.data?.active;
       return isAnyActive ? 1500 : 8000;
     },
-    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   // ── 2. Mutations ──

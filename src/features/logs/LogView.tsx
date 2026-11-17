@@ -11,7 +11,7 @@ import {
 } from "./components/LogFilterBar";
 import type { CustomRangeParams } from "../../api/customRange";
 import { isoWithOffset } from "../../lib/format";
-import { usePageVisibility } from "../../hooks/usePageVisibility";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 
 interface LogViewProps {
   title: string;
@@ -86,13 +86,18 @@ export default function LogView({
     protocol: filter.protocol !== "All" ? filter.protocol : undefined,
   };
 
-  const isTabVisible = usePageVisibility();
+  // Aqlli polling: faqat live rejimda, vkladka ochiq va 5 daqiqa ichida harakat bo'lgandagina so'raydi
+  const { shouldPoll } = useSmartPolling({
+    enabled: isLive,
+    idleTimeoutMs: 5 * 60 * 1000,
+  });
 
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["logs", queryParams],
     queryFn: () => fetchLogs(queryParams),
-    refetchInterval: isLive && isTabVisible ? 2000 : false,
+    refetchInterval: shouldPoll ? 2000 : false,
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   const handleRangeChange = (r: LogRangeValue) => {

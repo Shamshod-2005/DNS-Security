@@ -16,7 +16,7 @@ import type {
 } from "../../types";
 import { RequestDetailDrawer } from "./components/RequestDetailDrawer";
 import { ROUTES } from "../../router/routes";
-import { usePageVisibility } from "../../hooks/usePageVisibility";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 
 const PALETTE = [
   "#3b82f6",
@@ -63,9 +63,11 @@ export default function Dashboard() {
   // Live streaming toggle
   const [liveStreaming] = useState(true);
 
-  // Tab ko'rinishini kuzatish (boshqa tabga o'tganda fonda ortiqcha so'rov yubormaslik)
-  const isTabVisible = usePageVisibility();
-  const shouldPoll = liveStreaming && isTabVisible;
+  // Aqlli polling: vkladka yopilsa yoki 5 daqiqa harakatsiz bo'lsa so'rovlar to'xtatiladi
+  const { shouldPoll } = useSmartPolling({
+    enabled: liveStreaming,
+    idleTimeoutMs: 5 * 60 * 1000,
+  });
 
   // Card metric mode: PPS (packets/s) vs BPS (bits/s) - matching legacy #card-metric
   const [cardMetric, setCardMetric] = useState<"pps" | "bps">(() => {
@@ -83,6 +85,7 @@ export default function Dashboard() {
     queryFn: () => fetchRealtime(60),
     refetchInterval: shouldPoll ? 1000 : false,
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   // 2. Fetch aggregated summary from demo backend (15s polling)
@@ -91,6 +94,7 @@ export default function Dashboard() {
     queryFn: () => fetchSummary(cardMetric, timeRange),
     refetchInterval: shouldPoll ? 15000 : false,
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   // 3. Fetch real live DNS request logs from demo backend (2s polling)
@@ -100,6 +104,7 @@ export default function Dashboard() {
       fetchLogs({ malicious: 0, dot: 0, range: "live", page_size: 25 }),
     refetchInterval: shouldPoll ? 2000 : false,
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   // 4. Fetch real malicious / blocked logs from demo backend (3s polling)
@@ -108,6 +113,7 @@ export default function Dashboard() {
     queryFn: () => fetchLogs({ malicious: 1, range: "live", page_size: 10 }),
     refetchInterval: shouldPoll ? 3000 : false,
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
   });
 
   // ─── A. Real Backend KPI Stats (24h / Cumulative Today) ──────────────────
